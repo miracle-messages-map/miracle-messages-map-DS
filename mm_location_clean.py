@@ -120,6 +120,7 @@ countries = {'USA':'United States',
              'FR':'France'}
 
 def common_city_state():
+  # Fill values based on major city/state pairings such as Los Angeles:California
   for city, state in city_state.items():
     df.loc[(~df['City'].isnull()) &
            ((df['City'].str.lower().str.contains(state.lower())) |
@@ -158,13 +159,15 @@ def strip_punc():
   for col in ['City','Stateprovince','Country']:
     df[col] = df[col].apply(lambda s: str(s).translate(
                       str.maketrans('', '', string.punctuation)))
-
-  #converted nan to string, need to convert back
+ 
+  # Converted nan to string, need to convert back
   df.loc[df['Country'] == 'nan','Country'] = np.NaN
   df.loc[df['Stateprovince'] == 'nan','Stateprovince'] = np.NaN
   df.loc[df['City'] == 'nan','City'] = np.NaN
 
 def us_states():
+  # Pick out US state abbreviations and state names from other fields
+  # Convert abbreviations to long form names
   for abr in states:
     df.loc[((df['Full Address'].str.contains(states[abr]) &
              df['Stateprovince'].isnull())),
@@ -193,6 +196,8 @@ def us_states():
             'Stateprovince'] = states[abr]
 
 def can_states():
+    # Pick out Canadian provinces abbreviations and province names from other fields
+    # Convert abbreviations to long form names
     for abr in can_provinces:
       df.loc[((df['Full Address'].str.contains(can_provinces[abr]) &
                df['Stateprovince'].isnull())),
@@ -221,6 +226,8 @@ def can_states():
             'Stateprovince'] = can_provinces[abr]
 
 def australia_states():
+  # Pick out AUS state abbreviations and state names from other fields
+  # Convert abbreviations to long form names
   for abr in aus_states:
     df.loc[((df['Full Address'].str.contains(aus_states[abr]) &
              df['Stateprovince'].isnull())),
@@ -249,6 +256,8 @@ def australia_states():
             'Stateprovince'] = aus_states[abr]
 
 def common_countries():
+  # Find and pick out common countries from other fields
+  # Convert abreviation to long form name
   for abr in countries:
     df.loc[df['Country'].str.lower() == abr.lower(),
            'Country'] = countries[abr]
@@ -303,6 +312,7 @@ def fill_full_address():
                                  ', ' + df['Country'])
 
 def one_off_cities():
+  # A lot of the data required manual work, especially cities
   id_and_city = {711:'Bath', 4406:'Sydney', 2276:'Liverpool', 2949:'New Castle',
                  2682:'Minneapolis', 730:'Belgrade', 2793:'Bridgeport',
                  733:'Belton', 912:'Buffalo', 929:'Byron Bay', 1483:'Columbus',
@@ -373,6 +383,8 @@ def one_off_cities():
     df.loc[(df.index == i), 'City'] = city
 
 def one_off_countries():
+  # Countries did not require as much manual work since they can be inferred from
+  # City, state, and zip
   id_and_country = {
       730:'Serbia', 138:'Georgia', 2127:'South Africa', 1582:'Denmark',
       4182:'Sweden', 2730:'Russia', 4258:'Iran', 4260:'Israel', 2166:'Uganda',
@@ -389,6 +401,8 @@ def one_off_countries():
     df.loc[(df.index == i), 'Country'] = country
 
 def one_off_states():
+  # Middle of the pack, can infer from city and zip, still requires plenty of 
+  # one off manual entry
   id_and_state = {
       1986:'Puerto Rico', 68:'Gard', 5389:'Vienne', 5850:'Vence',
       674:'Provence', 2505:'Auvergne', 4828:'Bordeaux', 4905:'Manche',
@@ -425,6 +439,7 @@ def fill_null():
                                    'ZIP','Full Address']].fillna('UNKNOWN')
 
 def clean_mm_location_cols():
+    # Put it all together
     strip_nan()
     break_cities()
     strip_punc()
